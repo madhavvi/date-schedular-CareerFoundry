@@ -61,15 +61,20 @@ const DateSchedular = () => {
     let allottedSlotsDate = slotData[0].calendar;
     const [groupedData, setGroupedData] = useState();
     let allottedSlotsTime = [];
-    let selectOptions = [];
+    const [selectOptions, setSelectOptions] = useState([]);
+    let initialSelectOptions = [];
     for (var i = 0; i < 24; i++) {
-        selectOptions.push((i + 1).toLocaleString());
+        initialSelectOptions.push((i + 1).toLocaleString());
     }
-    selectOptions = selectOptions.map((o) => ({
+    initialSelectOptions = initialSelectOptions.map((o) => ({
         label: o.length < 2 ? '0'+o : o,
         value: o,
         allotted: false
     }));
+    // setSelectOptions(initialSelectOptions);
+
+    // useEffect(() => {
+    // }, [initialSelectOptions]);
 
     useEffect(() => {
         allottedSlotsDate = allottedSlotsDate.map((date) => {
@@ -86,7 +91,7 @@ const DateSchedular = () => {
         setSelectedDate(moment());
         setSelectedTime(undefined);
         setReason(undefined);
-        // setShowTimeField(false);
+        setShowTimeField(false);
         setShowReasonField(false);
         setSubmitDisabled(true);
     };
@@ -101,11 +106,12 @@ const DateSchedular = () => {
             allottedSlotsTime.push(moment(date).format('HH:mm:ss'))
         });
         if (allottedSlotsTime.length) {
-            selectOptions = selectOptions.filter((v) => {
+            initialSelectOptions = (initialSelectOptions.filter((v) => {
                return allottedSlotsTime.map(o => {
                     return v.allotted = true && o.includes(v.value); // partialy wrong logic to search allotted time.
                 })
-            })
+            }))
+            setSelectOptions(initialSelectOptions);
         }
 
         setSelectedDate(date);
@@ -116,6 +122,11 @@ const DateSchedular = () => {
         setSelectedTime(time.target.value);
         setShowReasonField(true);
     };
+
+    const onTimeChange = (event) => {
+        setShowReasonField(false);
+        setOpenErrorDialog(true);
+    }
 
     const handleReasonChange = (e) => {
         setSubmitDisabled(e.target.value ? false : true);
@@ -167,8 +178,19 @@ const DateSchedular = () => {
                                                 style={{textAlign: 'left'}}
                                             >
                                                 {selectOptions.map((v) => (
-                                                    <MenuItem key={v.value} value={v.value} label={v.label} disabled={v.allotted}>
-                                                        {(v.label > 12) ? (v.label +':00 PM') : (v.label +':00 AM')} 
+                                                    <MenuItem key={v.value} value={v.value} label={v.label}>
+                                                        {v.allotted ? (
+                                                            <span className="disbled-option" onClick={onTimeChange}>
+                                                                {(v.label > 12) ? (v.label +':00 PM') : (v.label +':00 AM')} 
+                                                            </span>
+                                                        ) 
+                                                        : (
+                                                            <span>
+                                                                {(v.label > 12) ? (v.label +':00 PM') : (v.label +':00 AM')} 
+                                                            </span>
+                                                        )
+                                                    }
+                                                        {/* disabled={v.allotted} */}
                                                     </MenuItem>
                                                 ))}
                                             </Select>
