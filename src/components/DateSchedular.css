@@ -96,6 +96,10 @@ Button[disabled]{
   color: #666666 !important;
 }
 
+.disbled-option {
+    color: #85858587;
+}
+
 .dialog-container {
     color:#232425;
 }
